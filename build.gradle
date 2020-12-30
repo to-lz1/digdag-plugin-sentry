@@ -4,7 +4,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'idea'
 
 group = 'io.digdag.plugin'
-version = '0.0.1'
+version = '0.0.9'
 
 def digdagVersion = '0.9.42'
 
@@ -21,6 +21,7 @@ configurations {
 }
 
 dependencies {
+    implementation 'io.sentry:sentry:3.1.0'
     provided 'io.digdag:digdag-spi:' + digdagVersion
     provided 'io.digdag:digdag-plugin-utils:' + digdagVersion
 }

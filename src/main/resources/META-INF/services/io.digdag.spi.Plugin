@@ -1,2 +1,2 @@
-io.digdag.plugin.example.ExamplePlugin
+io.digdag.plugin.sentry.SentryPlugin
 
