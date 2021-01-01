@@ -1,9 +1,9 @@
 _export:
   plugin:
     repositories:
-      - https://jitpack.io
+      - https://github.com/to-lz1/digdag-plugin-sentry/packages
     dependencies:
-      - com.github.to-lz1:digdag-plugin-sentry:v0.1.0
+      - io.digdag.plugin:digdag-plugin-sentry:0.1.0
 
 _error:
   +notify:
