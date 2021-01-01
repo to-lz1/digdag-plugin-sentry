@@ -1,0 +1,16 @@
+_export:
+  plugin:
+    repositories:
+      - https://jitpack.io
+    dependencies:
+      - com.github.to-lz1:digdag-plugin-sentry:v0.1.0
+
+_error:
+  +notify:
+    sentry>:
+    sentry_tags:
+      tag_name_1: tag_value_1
+      tag_name_2: tag_value_2
+
++step1:
+  sh>: sleep 1; exit 255

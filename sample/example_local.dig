@@ -1,0 +1,22 @@
+
+_export:
+  plugin:
+    repositories:
+      - file://${repos}
+    dependencies:
+      - io.digdag.plugin:digdag-plugin-sentry:0.1.0
+
+_error:
+  +notify:
+    sentry>:
+    dsn: ${dsn}
+
++step1:
+  sh>: exit 0
+
++step2:
+  sh>: exit 1
+
+# we can't use this operator like this (outside _error directive).
+# +step:
+#  sentry>:
