@@ -62,12 +62,16 @@ _error:
   sh>: sleep 1; exit 255
 ```
 
+Tags will be shown on project issues page like this:
+
+![tags_image](sample/images/sentry_tags.png)
+
 
 ## Development
 
-Description below is based on https://github.com/myui/digdag-plugin-example.
+see also: https://github.com/myui/digdag-plugin-example.
 
-1. set `build.gradle` to publish jar locally
+### 1) set `build.gradle` to publish jar locally
 
 ```
     repositories {
