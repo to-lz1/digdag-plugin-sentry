@@ -36,14 +36,22 @@ sourceSets {
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
-            // artifactId 'project1-sample'        
+        gpr(MavenPublication) {
             from components.java
         }
     }
     repositories {
         maven {
+            name "Local"
             url "$buildDir/repo"
+        }
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/to-lz1/digdag-plugin-sentry")
+            credentials {
+                username = System.getenv("GITHUB_USERNAME")
+                password = System.getenv("GITHUB_TOKEN")
+            }
         }
     }
 }
