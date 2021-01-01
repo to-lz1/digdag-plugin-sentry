@@ -1,17 +1,12 @@
 # digdag-plugin-sentry
 [![Digdag](https://img.shields.io/badge/digdag-v0.9.42-brightgreen.svg)](https://github.com/treasure-data/digdag/releases/tag/v0.9.42)
 
-Digdag plugin for sending errors to Sentry.
+A Digdag plugin for sending errors to Sentry.
 
 ## Features
 
 - You can use the `sentry>:` operator in `_error:` directive.
 - You can easily add arbitrary tags for your issues.
-
-## Requirement
-
-- [Digdag](https://www.digdag.io/)
-- [Sentry](https://sentry.io/)
 
 ## Usage
 
@@ -34,7 +29,7 @@ _error:
   sh>: sleep 1; exit 255
 ```
 
-If you don't want to write your Sentry DSN directly in `.dig` files, you can set it by using Digdag secrets. Secret key name is `sentry.dsn`.
+If you don't want to write your Sentry DSN directly in `.dig` files, you can set it by using Digdag secrets. The secret key name is `sentry.dsn`.
 
 ```sh
 # set your DSN
