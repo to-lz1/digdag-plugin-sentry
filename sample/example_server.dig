@@ -3,14 +3,24 @@ _export:
     repositories:
       - https://github.com/to-lz1/digdag-plugin-sentry/packages
     dependencies:
-      - io.digdag.plugin:digdag-plugin-sentry:0.1.0
+      - io.digdag.plugin:digdag-plugin-sentry:0.2.0
 
 _error:
-  +notify:
+  ## with no message param, error.message and error.stacktrace are automatically sent to Sentry as exception
+  ## (therefore, you don't need to specify Sentry 'level' here).
+  +send_error:
     sentry>:
+
+  +send_message_with_tags:
+    sentry>: fatal
+    message: some additional fatal message from server.
     sentry_tags:
       tag_name_1: tag_value_1
       tag_name_2: tag_value_2
 
 +step1:
-  sh>: sleep 1; exit 255
+  sentry>: info
+  message: hello digdag-plugin-sentry from server.
+
++step2:
+  sh>: exit 255
