@@ -6,6 +6,10 @@ import io.digdag.client.config.ConfigException;
 import io.digdag.spi.*;
 import io.digdag.util.BaseOperator;
 import io.sentry.Sentry;
+import io.sentry.SentryLevel;
+
+import java.util.Arrays;
+import java.util.Collections;
 
 
 public class SentryOperatorFactory implements OperatorFactory {
@@ -32,16 +36,22 @@ public class SentryOperatorFactory implements OperatorFactory {
             Config params = request.getConfig();
             SecretProvider secrets = context.getSecrets().getSecrets("sentry");
 
-            Optional<DigdagErrorPayload> errorPayload = params.getOptional("error", DigdagErrorPayload.class);
-            if (!errorPayload.isPresent()) {
-                throw new ConfigException("Parameter 'error' is not found. Using sentry operator outside _error: directive is not supported.");
-            }
-
-            initSentry(params, secrets);
+            this.initSentry(params, secrets);
             SentryTagsResolver tagsResolver = new SentryTagsResolver(params);
             Sentry.configureScope(scope -> tagsResolver.asMap().forEach(scope::setTag));
 
-            Sentry.captureException(errorPayload.get().asException());
+            String level = params.getOptional("_command", String.class).or("error");
+            Optional<String> message = params.getOptional("message", String.class);
+            Optional<DigdagErrorPayload> errorPayload = params.getOptional("error", DigdagErrorPayload.class);
+
+            if (message.isPresent()) {
+                Sentry.captureMessage(message.get(), this.commandToSentryLevel(level));
+            } else if (errorPayload.isPresent()) {
+                Sentry.captureException(errorPayload.get().asException());
+            } else {
+                throw new ConfigException("Neither 'message' nor 'error' param is not found. " +
+                        "Use this plugin in _error: context, or specify a message for Sentry to capture.");
+            }
             return TaskResult.empty(request);
         }
 
@@ -51,7 +61,33 @@ public class SentryOperatorFactory implements OperatorFactory {
             if (!dsn.isPresent()) {
                 throw new ConfigException("Sentry dsn is not set. please set it in .dig file configuration or secrets.");
             } else {
-                Sentry.init(options -> options.setDsn(dsn.get()));
+                Sentry.init(options -> {
+                    options.setDsn(dsn.get());
+                    options.setBeforeSend(((event, hint) -> {
+                        if(!event.isErrored()) {
+                            // set message as fingerprint (because stacktrace from this plugin will always be the same)
+                            // see also: https://docs.sentry.io/product/sentry-basics/guides/grouping-and-fingerprints/
+                            event.setFingerprints(Collections.singletonList(event.getMessage().getFormatted()));
+                        }
+                        return event;
+                    }));
+                });
+            }
+        }
+
+        private SentryLevel commandToSentryLevel(String command) {
+            switch (command) {
+                case "fatal":
+                    return SentryLevel.FATAL;
+                case "warning":
+                    return SentryLevel.WARNING;
+                case "info":
+                    return SentryLevel.INFO;
+                case "debug":
+                    return SentryLevel.DEBUG;
+                case "error":
+                default:
+                    return SentryLevel.ERROR;
             }
         }
     }

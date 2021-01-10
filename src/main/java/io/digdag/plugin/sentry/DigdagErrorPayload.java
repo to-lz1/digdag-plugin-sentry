@@ -18,7 +18,7 @@ public class DigdagErrorPayload {
 
     @Override
     public String toString() {
-        return "message='" + message + '\'' + '\n' + "stacktrace='" + stacktrace + '\'';
+        return "message='" + message + '\'' + '\n' + "stacktrace='" + stacktrace.replace(", ", "\n") + '\'';
     }
 
     public RuntimeException asException() {
