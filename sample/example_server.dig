@@ -1,9 +1,9 @@
 _export:
   plugin:
     repositories:
-      - https://github.com/to-lz1/digdag-plugin-sentry/packages
+      - https://jitpack.io
     dependencies:
-      - io.digdag.plugin:digdag-plugin-sentry:0.2.0
+      - com.github.to-lz1:digdag-plugin-sentry:0.2.0
 
 _error:
   ## with no message param, error.message and error.stacktrace are automatically sent to Sentry as exception

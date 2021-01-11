@@ -1,11 +1,12 @@
 # digdag-plugin-sentry
 [![Digdag](https://img.shields.io/badge/digdag-v0.9.42-brightgreen.svg)](https://github.com/treasure-data/digdag/releases/tag/v0.9.42)
+[![JitPack](https://jitpack.io/v/to-lz1/digdag-plugin-sentry.svg)](https://jitpack.io/#to-lz1/digdag-plugin-sentry)
 
 A Digdag plugin for sending errors to Sentry.
 
 ## Features
 
-- You can use the `sentry>:` operator in `_error:` directive.
+- You can use the `sentry>:` operator.
 - You can easily add arbitrary tags for your issues.
 
 ## Usage
@@ -29,6 +30,26 @@ _error:
   sh>: sleep 1; exit 255
 ```
 
+Error information will be sent to your Sentry project automatically.
+
+![error_image](sample/images/sentry_error.png)
+
+### Sending Events
+
+You can send some messages at any level (`debug`, `info`, `warning`, `error`, `fatal`) to your project, as Sentry event capturing.
+
+```dig
++step1:
+  sentry>: info
+  message: some information to your Sentry project.
+
++step2:
+  sentry>: warning
+  message: some warning to your Sentry project.
+```
+
+### Other features
+
 If you don't want to write your Sentry DSN directly in `.dig` files, you can set it by using Digdag secrets. The secret key name is `sentry.dsn`.
 
 ```sh
@@ -36,18 +57,30 @@ If you don't want to write your Sentry DSN directly in `.dig` files, you can set
 digdag secrets --project sample --set sentry.dsn
 ```
 
-You can set arbitrary tags to your issues.
+By doing this, you don't need declare dsn anymore.
 
 ```dig
-_export:
-  plugin:
-    repositories:
-      - https://github.com/to-lz1/digdag-plugin-sentry/packages
-    dependencies:
-      - io.digdag.plugin:digdag-plugin-sentry:0.1.0
+...
 
 _error:
-  +notify:
+  +send_error:
+    sentry>:
+
+  +send_message:
+    sentry>: fatal
+    message: some additional fatal message from server.
+
++step1:
+  sh>: your awesome task.
+```
+
+You can also set arbitrary tags to your issues.
+
+```dig
+...
+
+_error:
+  +send_error:
     sentry>:
     sentry_tags:
       tag_name_1: tag_value_1
@@ -66,26 +99,7 @@ Tags will be shown on project issues page like this:
 
 see also: https://github.com/myui/digdag-plugin-example.
 
-### 1) set `build.gradle` to publish jar locally
-
-```
-    repositories {
-        maven {
-            name "Local"
-            url "$buildDir/repo"
-        }
-//        maven {
-//            name = "GitHubPackages"
-//            url = uri("https://maven.pkg.github.com/to-lz1/digdag-plugin-sentry")
-//            credentials {
-//                username = System.getenv("GITHUB_USERNAME")
-//                password = System.getenv("GITHUB_TOKEN")
-//            }
-//        }
-    }
-```
-
-### 2) build
+### 1) build
 
 ```sh
 ./gradlew publish
@@ -93,9 +107,9 @@ see also: https://github.com/myui/digdag-plugin-example.
 
 Artifacts are build on local repos: `./build/repo`.
 
-### 3) run sample workflows
+### 2) run sample workflows
 
-For example, in local mode:
+#### in local mode:
 
 ```sh
 digdag selfupdate
@@ -104,4 +118,18 @@ digdag run --no-save --project sample \
   example_local.dig \
   -p repos=`pwd`/build/repo \
   -p dsn=https://your_sentry_dsn@project.ingest.sentry.io/0000000
+```
+
+#### in server mode:
+
+Server mode sample will fetch the artifact from [JitPack.io](https://jitpack.io/).
+
+```sh
+digdag server --memory --config sample/server.properties
+
+digdag push --project sample sample_project
+
+digdag secrets --project sample_project --set sentry.dsn
+
+digdag start sample_project example_server --session now
 ```

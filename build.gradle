@@ -41,17 +41,9 @@ publishing {
         }
     }
     repositories {
-//        maven {
-//            name "Local"
-//            url "$buildDir/repo"
-//        }
         maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/to-lz1/digdag-plugin-sentry")
-            credentials {
-                username = System.getenv("GITHUB_USERNAME")
-                password = System.getenv("GITHUB_TOKEN")
-            }
+            name "Local"
+            url "$buildDir/repo"
         }
     }
 }
