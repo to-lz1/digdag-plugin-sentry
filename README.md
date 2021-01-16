@@ -17,9 +17,9 @@ Specify this plugin dependency in `_export:` directive, and call `sentry>:` oper
 _export:
   plugin:
     repositories:
-      - https://github.com/to-lz1/digdag-plugin-sentry/packages
+      - https://jitpack.io
     dependencies:
-      - io.digdag.plugin:digdag-plugin-sentry:0.1.0
+      - com.github.to-lz1:digdag-plugin-sentry:0.2.0
 
 _error:
   +notify:
