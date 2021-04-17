@@ -8,7 +8,6 @@ import io.digdag.util.BaseOperator;
 import io.sentry.Sentry;
 import io.sentry.SentryLevel;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 
@@ -40,12 +39,14 @@ public class SentryOperatorFactory implements OperatorFactory {
             SentryTagsResolver tagsResolver = new SentryTagsResolver(params);
             Sentry.configureScope(scope -> tagsResolver.asMap().forEach(scope::setTag));
 
-            String level = params.getOptional("_command", String.class).or("error");
+            String severity = params.getOptional("_command", String.class)
+                    .or(params.getOptional("severity", String.class))
+                    .or("error");
             Optional<String> message = params.getOptional("message", String.class);
             Optional<DigdagErrorPayload> errorPayload = params.getOptional("error", DigdagErrorPayload.class);
 
             if (message.isPresent()) {
-                Sentry.captureMessage(message.get(), this.commandToSentryLevel(level));
+                Sentry.captureMessage(message.get(), this.severityToSentryLevel(severity));
             } else if (errorPayload.isPresent()) {
                 Sentry.captureException(errorPayload.get().asException());
             } else {
@@ -75,8 +76,8 @@ public class SentryOperatorFactory implements OperatorFactory {
             }
         }
 
-        private SentryLevel commandToSentryLevel(String command) {
-            switch (command) {
+        private SentryLevel severityToSentryLevel(String severity) {
+            switch (severity) {
                 case "fatal":
                     return SentryLevel.FATAL;
                 case "warning":
