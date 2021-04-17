@@ -4,7 +4,7 @@ _export:
     repositories:
       - file://${repos}
     dependencies:
-      - io.digdag.plugin:digdag-plugin-sentry:0.2.0
+      - io.digdag.plugin:digdag-plugin-sentry:0.3.0
 
 _error:
   ## with no message param, error.message and error.stacktrace are automatically sent to Sentry as exception
@@ -14,7 +14,8 @@ _error:
     dsn: ${dsn}
 
   +send_message_with_tags:
-    sentry>: fatal
+    sentry>:
+    severity: fatal
     dsn: ${dsn}
     message: some additional fatal message.
     sentry_tags:
@@ -22,7 +23,8 @@ _error:
       tag_name2: tag_value_2
 
 +step1:
-  sentry>: info
+  sentry>:
+  severity: info
   message: hello digdag-plugin-sentry.
   dsn: ${dsn}
 
