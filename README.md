@@ -1,5 +1,5 @@
 # digdag-plugin-sentry
-[![Digdag](https://img.shields.io/badge/digdag-v0.9.42-brightgreen.svg)](https://github.com/treasure-data/digdag/releases/tag/v0.9.42)
+[![Digdag](https://img.shields.io/badge/digdag-v0.10.0-brightgreen.svg)](https://github.com/treasure-data/digdag/releases/tag/v0.10.0)
 [![JitPack](https://jitpack.io/v/to-lz1/digdag-plugin-sentry.svg)](https://jitpack.io/#to-lz1/digdag-plugin-sentry)
 
 A Digdag plugin for sending errors to Sentry.
@@ -19,7 +19,7 @@ _export:
     repositories:
       - https://jitpack.io
     dependencies:
-      - com.github.to-lz1:digdag-plugin-sentry:0.2.0
+      - com.github.to-lz1:digdag-plugin-sentry:0.3.0
 
 _error:
   +notify:
@@ -36,15 +36,17 @@ Error information will be sent to your Sentry project automatically.
 
 ### Sending Events
 
-You can send some messages at any level (`debug`, `info`, `warning`, `error`, `fatal`) to your project, as Sentry event capturing.
+You can send some messages at any level (`debug`, `info`, `warning`, `error`, `fatal`) to your Sentry project. The default is `error`.
 
 ```dig
 +step1:
-  sentry>: info
+  sentry>:
+  severity: info
   message: some information to your Sentry project.
 
 +step2:
-  sentry>: warning
+  sentry>:
+  severity: warning
   message: some warning to your Sentry project.
 ```
 
@@ -67,7 +69,8 @@ _error:
     sentry>:
 
   +send_message:
-    sentry>: fatal
+    sentry>:
+    severity: fatal
     message: some additional fatal message from server.
 
 +step1:

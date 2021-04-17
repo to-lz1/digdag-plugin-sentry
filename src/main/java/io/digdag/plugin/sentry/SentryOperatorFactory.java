@@ -8,7 +8,6 @@ import io.digdag.util.BaseOperator;
 import io.sentry.Sentry;
 import io.sentry.SentryLevel;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 
@@ -37,15 +36,15 @@ public class SentryOperatorFactory implements OperatorFactory {
             SecretProvider secrets = context.getSecrets().getSecrets("sentry");
 
             this.initSentry(params, secrets);
-            SentryTagsResolver tagsResolver = new SentryTagsResolver(params);
-            Sentry.configureScope(scope -> tagsResolver.asMap().forEach(scope::setTag));
 
-            String level = params.getOptional("_command", String.class).or("error");
+            String severity = params.getOptional("_command", String.class)
+                    .or(params.getOptional("severity", String.class))
+                    .or("error");
             Optional<String> message = params.getOptional("message", String.class);
             Optional<DigdagErrorPayload> errorPayload = params.getOptional("error", DigdagErrorPayload.class);
 
             if (message.isPresent()) {
-                Sentry.captureMessage(message.get(), this.commandToSentryLevel(level));
+                Sentry.captureMessage(message.get(), this.severityToSentryLevel(severity));
             } else if (errorPayload.isPresent()) {
                 Sentry.captureException(errorPayload.get().asException());
             } else {
@@ -60,23 +59,24 @@ public class SentryOperatorFactory implements OperatorFactory {
                     .or(secrets.getSecretOptional("dsn"));
             if (!dsn.isPresent()) {
                 throw new ConfigException("Sentry dsn is not set. please set it in .dig file configuration or secrets.");
-            } else {
-                Sentry.init(options -> {
-                    options.setDsn(dsn.get());
-                    options.setBeforeSend(((event, hint) -> {
-                        if(!event.isErrored()) {
-                            // set message as fingerprint (because stacktrace from this plugin will always be the same)
-                            // see also: https://docs.sentry.io/product/sentry-basics/guides/grouping-and-fingerprints/
-                            event.setFingerprints(Collections.singletonList(event.getMessage().getFormatted()));
-                        }
-                        return event;
-                    }));
-                });
             }
+            Sentry.init(options -> {
+                options.setDsn(dsn.get());
+                options.setBeforeSend(((event, hint) -> {
+                    if(!event.isErrored()) {
+                        // set message as fingerprint (because stacktrace from this plugin will always be the same)
+                        // see also: https://docs.sentry.io/product/sentry-basics/guides/grouping-and-fingerprints/
+                        event.setFingerprints(Collections.singletonList(event.getMessage().getFormatted()));
+                    }
+                    return event;
+                }));
+            });
+            SentryTagsResolver tagsResolver = new SentryTagsResolver(params);
+            Sentry.configureScope(scope -> tagsResolver.asMap().forEach(scope::setTag));
         }
 
-        private SentryLevel commandToSentryLevel(String command) {
-            switch (command) {
+        private SentryLevel severityToSentryLevel(String severity) {
+            switch (severity) {
                 case "fatal":
                     return SentryLevel.FATAL;
                 case "warning":
