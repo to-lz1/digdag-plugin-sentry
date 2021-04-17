@@ -21,7 +21,7 @@ configurations {
 }
 
 dependencies {
-    implementation 'io.sentry:sentry:3.1.0'
+    implementation 'io.sentry:sentry:4.3.0'
     provided 'io.digdag:digdag-spi:' + digdagVersion
     provided 'io.digdag:digdag-plugin-utils:' + digdagVersion
 }
