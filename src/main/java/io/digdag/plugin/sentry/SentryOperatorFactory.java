@@ -8,8 +8,7 @@ import io.digdag.util.BaseOperator;
 import io.sentry.Sentry;
 import io.sentry.SentryLevel;
 
-import java.util.Collections;
-
+import java.util.Arrays;
 
 public class SentryOperatorFactory implements OperatorFactory {
 
@@ -66,7 +65,10 @@ public class SentryOperatorFactory implements OperatorFactory {
                     if(!event.isErrored()) {
                         // set message as fingerprint (because stacktrace from this plugin will always be the same)
                         // see also: https://docs.sentry.io/product/sentry-basics/guides/grouping-and-fingerprints/
-                        event.setFingerprints(Collections.singletonList(event.getMessage().getFormatted()));
+                        event.setFingerprints(Arrays.asList(
+                                params.get("task_name", String.class),
+                                event.getMessage().getFormatted()
+                            ));
                     }
                     return event;
                 }));
