@@ -4,7 +4,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'idea'
 
 group = 'io.digdag.plugin'
-version = '0.4.0'
+version = '0.5.0'
 
 def digdagVersion = '0.10.4'
 
