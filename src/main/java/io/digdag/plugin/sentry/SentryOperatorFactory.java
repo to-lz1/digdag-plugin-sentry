@@ -57,18 +57,23 @@ public class SentryOperatorFactory implements OperatorFactory {
             Optional<String> dsn = params.getOptional("dsn", String.class)
                     .or(secrets.getSecretOptional("dsn"));
             if (!dsn.isPresent()) {
-                throw new ConfigException("Sentry dsn is not set. please set it in .dig file configuration or secrets.");
+                throw new ConfigException(
+                        "Sentry dsn is not set. please set it in .dig file configuration or secrets.");
             }
             Sentry.init(options -> {
                 options.setDsn(dsn.get());
                 options.setBeforeSend(((event, hint) -> {
-                    if(!event.isErrored()) {
-                        // set message as fingerprint (because stacktrace from this plugin will always be the same)
-                        // see also: https://docs.sentry.io/product/sentry-basics/guides/grouping-and-fingerprints/
+                    // set message as fingerprint (because stacktrace from this plugin will always be the same)
+                    // see also:
+                    // https://docs.sentry.io/product/sentry-basics/guides/grouping-and-fingerprints/
+                    if (event.isErrored()) {
                         event.setFingerprints(Arrays.asList(
                                 params.get("task_name", String.class),
-                                event.getMessage().getFormatted()
-                            ));
+                                event.getThrowable().getMessage()));
+                    } else {
+                        event.setFingerprints(Arrays.asList(
+                                params.get("task_name", String.class),
+                                event.getMessage().getFormatted()));
                     }
                     return event;
                 }));
