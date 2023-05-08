@@ -4,7 +4,7 @@ _export:
     repositories:
       - file://${repos}
     dependencies:
-      - io.digdag.plugin:digdag-plugin-sentry:0.4.0
+      - io.digdag.plugin:digdag-plugin-sentry:0.5.0
 
 _error:
   ## with no message param, error.message and error.stacktrace are automatically sent to Sentry as exception
